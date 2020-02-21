@@ -32,4 +32,5 @@ def convert_img_to_csv(img_dir):
 
 if __name__ == "__main__":
     #将该目录下的图片保存为csv文件
-    convert_img_to_csv(r"F:/DockerProjet/DI5-S10-ProjetLibre-IA/AI_Test/Perceptron/circles")
+    #convert_img_to_csv(r"F:/DockerProjet/DI5-S10-ProjetLibre-IA/AI_Test/Perceptron/circles")
+    convert_img_to_csv("./circles")
