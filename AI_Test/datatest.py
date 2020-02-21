@@ -31,7 +31,6 @@ def PictureToArray():
     # matrice to image
     # image1 = Image.fromarray(matrix)
     # image1.show()
-
 if __name__ == '__main__':
     imageio.core.util._precision_warn = silence_imageio_warning
     loadData()
