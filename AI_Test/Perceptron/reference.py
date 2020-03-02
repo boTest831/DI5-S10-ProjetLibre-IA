@@ -27,6 +27,23 @@ X = df.iloc[0:100, [0, 2]].values
 ppn = perceptron_class.Perceptron(eta=0.1, n_iter=10)
 ppn.fit(X, y)
 
+error = 0
+for xi, target in zip(X, y):
+    Z = ppn.predict(xi)
+    if not (Z == target):
+        error += 1
+    if (Z == -1):
+        predict = "circle"
+    elif (Z == 1):
+        predict = "square"
+    if (target == -1):
+        shape = "circle"
+    elif (target == 1):
+        shape = "square"
+    print("Shape:", shape, " Predict: ", predict)
+print("Error:", error)
+
+
 #画出分界线
 def plot_decision_regions(X, y, classifier, resolution=0.02):
     # setup marker generator and color map
@@ -49,8 +66,3 @@ def plot_decision_regions(X, y, classifier, resolution=0.02):
         alpha=0.8, c=cmap(idx),
         marker=markers[idx], label=cl)
 
-plot_decision_regions(X, y, classifier=ppn)
-plt.xlabel('sepal length [cm]')
-plt.ylabel('petal length [cm]')
-plt.legend(loc='upper left')
-plt.show()
