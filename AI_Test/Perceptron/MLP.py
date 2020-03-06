@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 
 class neural_network(object):
     # Initialisation du perceptron
-    def __init__(self, data, target, num_layer, input_size, output_size, num_epoch=10000, lr=0.001, is_bias=False):
+    def __init__(self, data, target, num_layer, input_size, output_size, num_epoch=5000, lr=0.001, is_bias=False):
         self.num_layer = num_layer  # nombre de couches de réseau (couches cachées + couche sortie)
         self.data = data.T
         self.data = (self.data - self.data.min()) / (self.data.max() - self.data.min())  # Données normalisées
@@ -88,7 +88,7 @@ class neural_network(object):
         for epoch in range(self.num_epoch):
             self.forward()
             self.loss = self.cost(self.labels, self.out_softmax)  # Calculez l'écart
-            print(self.loss)
+            print(epoch, self.loss)
             self.backward()
 
     # Softmax score
@@ -96,6 +96,10 @@ class neural_network(object):
         e_V = np.exp(V - np.max(V, axis=0, keepdims=True))
         Z = e_V / e_V.sum(axis=0)
         return Z
+
+    def predict(self, ):
+        out = np.dot(self.weights[self.num_layer - 1].T, a)  # Résultats de la couche de sortie
+        return self.softmax(out)
 
     # One-hot coding
     def convert_labels(self, y, C=2):
