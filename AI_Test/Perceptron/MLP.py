@@ -15,6 +15,9 @@ class neural_network(object):
         self.labels = target
         self.is_bias = is_bias
         self.num_epoch = num_epoch  # Nombre d'itérations
+
+        # Pour dessiner la figure
+        self.array_loss = []
         weight = []
         nb_neurons_prec = input_size  # Nombre d'entrées = 4
         biases = []
@@ -22,6 +25,7 @@ class neural_network(object):
         for i in range(num_layer - 1):
             # Entrez le nombre de neurones dans chaque couche cachée
             nb_neurons = int(input('Number of neurones in layer' + str(i + 1) + '?'))
+            # nb_neurons = 784
             # Initialiser les poids et les biais pour chaque couche avec des nombres aléatoires
             weight_i = np.random.randn(nb_neurons_prec,
                                        nb_neurons)  # Nb poids =  nb données d'entrée dans la couche précédente * Nb neurones dans cette couche
@@ -88,6 +92,7 @@ class neural_network(object):
         for epoch in range(self.num_epoch):
             self.forward()
             self.loss = self.cost(self.labels, self.out_softmax)  # Calculez l'écart
+            self.array_loss.append(self.loss)
             print(epoch, self.loss)
             self.backward()
 
@@ -97,7 +102,20 @@ class neural_network(object):
         Z = e_V / e_V.sum(axis=0)
         return Z
 
-    def predict(self, ):
+    def predict(self, data):
+        self.A = []  # Valeur d'entrée
+        a = data.reshape(data.shape[0],1)
+        self.A.append(a)
+        # Calculez la valeur de sortie de chaque nœud
+        for i in range(self.num_layer - 1):
+            # zl = self.weights[l] * self.data[l-1] + self.biases[l]
+            if self.is_bias:
+                z = np.dot(self.weights[i].T, a) + self.biases[i]
+            else:
+                z = np.dot(self.weights[i].T, a)
+            a = np.maximum(z, 0)  # relu Fonction d'activation
+            self.Z.append(z)
+            self.A.append(a)
         out = np.dot(self.weights[self.num_layer - 1].T, a)  # Résultats de la couche de sortie
         return self.softmax(out)
 
