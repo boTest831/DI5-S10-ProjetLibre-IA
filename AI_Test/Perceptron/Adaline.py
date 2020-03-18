@@ -6,7 +6,7 @@ Created on 2017年12月21日
 '''
 import numpy as np
 import time
-import matplotlib.pyplot  as plt
+#import matplotlib.pyplot  as plt
 import pandas as pd
 from numpy.random import seed
 

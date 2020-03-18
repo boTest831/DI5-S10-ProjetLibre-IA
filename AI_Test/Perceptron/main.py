@@ -4,7 +4,7 @@ import AI_Test.Perceptron.MLP as MLP_class
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
-dataframe = pd.read_csv(r"D:\France\S10\Projet Libre\DI5-S10-ProjetLibre-IA\AI_Test\Perceptron\newtest.csv")
+dataframe = pd.read_csv('newtest.csv')
 
 y = dataframe.iloc[0:200, 0].values
 y = np.where(y == 0, 0, 1)
