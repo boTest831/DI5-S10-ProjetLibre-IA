@@ -8,6 +8,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QFileDialog
 
 
 class Ui_MainWindow(object):
@@ -101,6 +102,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label_2.setText(_translate("MainWindow", "Adjust "))
         self.pushButton.setText(_translate("MainWindow", "Select Image..."))
+        self.pushButton.clicked.connect(self.selectImageClicked)
         self.pushButton_2.setText(_translate("MainWindow", "Recognize"))
         self.label.setText(_translate("MainWindow", "Recognition result"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))
@@ -111,4 +113,11 @@ class Ui_MainWindow(object):
         self.actionSave_As.setText(_translate("MainWindow", "Save As..."))
         self.actionQuit_3.setText(_translate("MainWindow", "Quit"))
         self.actionUsing_help.setText(_translate("MainWindow", "Using help"))
-import AI_Test.UI.res.img_rc
+
+    def selectImageClicked(self):
+        # dir_path = QFileDialog.getExistingDirectory(self, "请选择文件夹路径", "C:\\")
+        filename, _ = QFileDialog.getOpenFileName(self, "Sélectionnez les images à reconnaître")
+        print(filename)
+        # self.graphicsView.setStyleSheet("border-image: url(:/img/drawing(1).png);")
+        self.graphicsView.setStyleSheet("border-image: url("+ filename +");")
+import UI.res.img_rc
