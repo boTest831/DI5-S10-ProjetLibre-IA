@@ -6,6 +6,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
+import cv2
 import sys
 import numpy as np
 import pandas as pd
@@ -80,6 +81,12 @@ class Ui_MainWindow(object):
         self.tabWidget.setGeometry(QtCore.QRect(10, 30, 351, 321))
         self.tabWidget.setTabPosition(QtWidgets.QTabWidget.North)
         self.tabWidget.setObjectName("tabWidget")
+        self.tab_3 = QtWidgets.QWidget()
+        self.tab_3.setObjectName("tab_3")
+        self.consoleBrowser = QtWidgets.QTextBrowser(self.tab_3)
+        self.consoleBrowser.setGeometry(QtCore.QRect(10, 10, 311, 261))
+        self.consoleBrowser.setObjectName("consoleBrowser")
+        self.tabWidget.addTab(self.tab_3, "")
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
         self.lossView = QtWidgets.QGraphicsView(self.tab)
@@ -92,9 +99,6 @@ class Ui_MainWindow(object):
         self.textBrowser.setGeometry(QtCore.QRect(50, 50, 256, 192))
         self.textBrowser.setObjectName("textBrowser")
         self.tabWidget.addTab(self.tab_2, "")
-        self.tab_3 = QtWidgets.QWidget()
-        self.tab_3.setObjectName("tab_3")
-        self.tabWidget.addTab(self.tab_3, "")
         self.trainResultLabel = QtWidgets.QLabel(self.frame_2)
         self.trainResultLabel.setGeometry(QtCore.QRect(20, 10, 101, 16))
         self.trainResultLabel.setObjectName("trainResultLabel")
@@ -174,7 +178,7 @@ class Ui_MainWindow(object):
         self.actionUsing_help.setObjectName("actionUsing_help")
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -184,9 +188,9 @@ class Ui_MainWindow(object):
         self.selectImageButton.setText(_translate("MainWindow", "Select Image..."))
         self.recognizeButton.setText(_translate("MainWindow", "Recognize"))
         self.resultLabel.setText(_translate("MainWindow", "Recognition result"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Console"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Loss"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "performance"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "页"))
         self.trainResultLabel.setText(_translate("MainWindow", "Training results"))
         self.nbLayer3Label.setText(_translate("MainWindow", "Number of neurons in 3 layer"))
         self.nbLayer2Label.setText(_translate("MainWindow", "Number of neurons in 2 layer"))
@@ -208,6 +212,7 @@ class Ui_MainWindow(object):
     def initialize(self):
         self.selectImageButton.clicked.connect(self.selectImageClicked)
         self.trainModelButton.clicked.connect(self.trainModel)
+        self.recognizeButton.clicked.connect(self.recognize)
 
         # self.nbLayer2Text.setFocusPolicy(QtCore.Qt.NoFocus)
         self.nbLayer2Text.setDisabled(True)
@@ -270,12 +275,36 @@ class Ui_MainWindow(object):
         self.nn.learning()
         np.set_printoptions(suppress=True, precision=2)
 
+        # count_train_error = 0
+        # for data, label in zip(data_train, target_train):
+        #     print("trainset")
+        #     predict = self.nn.predict(data).tolist()
+        #     if not label == round(predict[1][0]):
+        #         count_train_error += 1
+        #     if (label == 0):
+        #         label = "circle"
+        #     elif (label == 1):
+        #         label == "square"
+        #     print("label: ", label, "predict", round(predict[1][0]))
+
     def recognize(self):
-        predict = self.nn.predict("data").tolist()
+        if self.filename != "":
+            img = cv2.imread(self.filename, cv2.IMREAD_GRAYSCALE)
+            # 图片标签
+            row_data = []
+            # 获取图片的像素
+            row_data.extend(img.flatten())
+            # 将图片数据写入到csv文件中
+            predict = self.nn.predict(np.array(row_data)).tolist()
+            if round(predict[1][0]) == 0:
+                result = "circle"
+            elif (round(predict[1][0]) == 1):
+                result = "square"
+            self.resultText.setText(result)
 
     def outputWritten(self, text):
-        cursor = self.textEdit.textCursor()
+        cursor = self.consoleBrowser.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
         cursor.insertText(text)
-        self.textEdit.setTextCursor(cursor)
-        self.textEdit.ensureCursorVisible()
+        self.consoleBrowser.setTextCursor(cursor)
+        self.consoleBrowser.ensureCursorVisible()

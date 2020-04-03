@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 
 class neural_network(object):
     # Initialisation du perceptron
-    def __init__(self, data, target, num_layer, input_size, output_size, num_epoch=100000, lr=0.001, is_bias=False):
+    def __init__(self, data, target, num_layer, input_size, output_size, num_epoch, nbneuron1, nbneuron2, nbneuron3, lr=0.001, is_bias=False):
         self.num_layer = num_layer  # nombre de couches de réseau (couches cachées + couche sortie)
         self.data = data.T
         self.data = (self.data - self.data.min()) / (self.data.max() - self.data.min())  # Données normalisées
@@ -24,7 +24,13 @@ class neural_network(object):
 
         for i in range(num_layer - 1):
             # Entrez le nombre de neurones dans chaque couche cachée
-            nb_neurons = int(input('Number of neurones in layer' + str(i + 1) + '?'))
+            # nb_neurons = int(input('Number of neurones in layer' + str(i + 1) + '?'))
+            if i == 0:
+                nb_neurons = nbneuron1
+            elif i == 1:
+                nb_neurons = nbneuron2
+            elif i == 2:
+                nb_neurons = nbneuron3
             # nb_neurons = 784
             # Initialiser les poids et les biais pour chaque couche avec des nombres aléatoires
             weight_i = np.random.randn(nb_neurons_prec,

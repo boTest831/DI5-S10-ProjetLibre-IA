@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>794</width>
+    <height>679</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <widget class="QFrame" name="frame">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>30</y>
+      <x>440</x>
+      <y>200</y>
       <width>371</width>
       <height>441</height>
      </rect>
@@ -32,15 +32,15 @@
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>30</x>
        <y>20</y>
-       <width>331</width>
-       <height>341</height>
+       <width>221</width>
+       <height>241</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="adjustLabel">
         <property name="text">
          <string>Adjust </string>
         </property>
@@ -50,7 +50,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGraphicsView" name="graphicsView">
+       <widget class="QGraphicsView" name="imageView">
         <property name="styleSheet">
          <string notr="true">border-image: url(:/img/drawing(1).png);</string>
         </property>
@@ -66,7 +66,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="selectImageButton">
         <property name="text">
          <string>Select Image...</string>
         </property>
@@ -81,11 +81,11 @@
       </item>
      </layout>
     </widget>
-    <widget class="QPushButton" name="pushButton_2">
+    <widget class="QPushButton" name="recognizeButton">
      <property name="geometry">
       <rect>
-       <x>100</x>
-       <y>380</y>
+       <x>30</x>
+       <y>270</y>
        <width>121</width>
        <height>41</height>
       </rect>
@@ -94,14 +94,36 @@
       <string>Recognize</string>
      </property>
     </widget>
+    <widget class="QWidget" name="horizontalLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>330</y>
+       <width>181</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="resultLabel">
+        <property name="text">
+         <string>Recognition result</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="resultText"/>
+      </item>
+     </layout>
+    </widget>
    </widget>
    <widget class="QFrame" name="frame_2">
     <property name="geometry">
      <rect>
-      <x>410</x>
-      <y>50</y>
-      <width>351</width>
-      <height>291</height>
+      <x>30</x>
+      <y>210</y>
+      <width>371</width>
+      <height>341</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -110,30 +132,180 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QWidget" name="verticalLayoutWidget_2">
+    <widget class="QTabWidget" name="tabWidget">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>10</x>
        <y>30</y>
-       <width>271</width>
-       <height>221</height>
+       <width>351</width>
+       <height>321</height>
       </rect>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QLabel" name="label">
+     <property name="tabPosition">
+      <enum>QTabWidget::North</enum>
+     </property>
+     <property name="currentIndex">
+      <number>2</number>
+     </property>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>Console</string>
+      </attribute>
+      <widget class="QTextBrowser" name="consoleBrowser">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>311</width>
+         <height>261</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Loss</string>
+      </attribute>
+      <widget class="QGraphicsView" name="lossView">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>10</y>
+         <width>331</width>
+         <height>251</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>performance</string>
+      </attribute>
+      <widget class="QTextBrowser" name="textBrowser">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>50</y>
+         <width>256</width>
+         <height>192</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QLabel" name="trainResultLabel">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>10</y>
+       <width>101</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Training results</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QFrame" name="frame_3">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>20</y>
+      <width>731</width>
+      <height>171</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QWidget" name="gridLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>14</x>
+       <y>20</y>
+       <width>641</width>
+       <height>103</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="2" column="1">
+       <widget class="QComboBox" name="nbLayerBox"/>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLineEdit" name="nbLayer3Text"/>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="nbLayer3Label">
         <property name="text">
-         <string>Recognition result</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <string>Number of neurons in 3 layer</string>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QTableWidget" name="tableWidget"/>
+      <item row="1" column="2">
+       <widget class="QLabel" name="nbLayer2Label">
+        <property name="text">
+         <string>Number of neurons in 2 layer</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="epochText"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="nbLayerLabel">
+        <property name="text">
+         <string>Number of layers:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="dataDirText"/>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="nbLayer1Label">
+        <property name="text">
+         <string>Number of neurons in 1 layer</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLineEdit" name="nbLayer1Text"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="epochLabel">
+        <property name="text">
+         <string>Number of iterations:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="dataDirLabel">
+        <property name="text">
+         <string>Current dataset path:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLineEdit" name="nbLayer2Text"/>
       </item>
      </layout>
+    </widget>
+    <widget class="QPushButton" name="trainModelButton">
+     <property name="geometry">
+      <rect>
+       <x>270</x>
+       <y>130</y>
+       <width>92</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Training model</string>
+     </property>
     </widget>
    </widget>
   </widget>
@@ -142,8 +314,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>26</height>
+     <width>794</width>
+     <height>23</height>
     </rect>
    </property>
   </widget>
