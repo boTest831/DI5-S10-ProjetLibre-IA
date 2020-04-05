@@ -145,7 +145,7 @@
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -297,7 +297,7 @@
     <widget class="QPushButton" name="trainModelButton">
      <property name="geometry">
       <rect>
-       <x>270</x>
+       <x>240</x>
        <y>130</y>
        <width>92</width>
        <height>23</height>
@@ -305,6 +305,19 @@
      </property>
      <property name="text">
       <string>Training model</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="loadModelButton">
+     <property name="geometry">
+      <rect>
+       <x>360</x>
+       <y>130</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Load Model</string>
      </property>
     </widget>
    </widget>

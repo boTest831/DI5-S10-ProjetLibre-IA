@@ -5,22 +5,38 @@
 # Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
+import csv
 
 import cv2
 import sys
 import numpy as np
 import pandas as pd
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QGraphicsScene, QMessageBox
 from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
+import matplotlib
+
+matplotlib.use("Qt5Agg")  # Declare to use QT5
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 import Perceptron.MLP as MLP_class
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class EmittingStream(QtCore.QObject):
-    textWritten = QtCore.pyqtSignal(str)  # 定义一个发送str的信号
+    textWritten = QtCore.pyqtSignal(str)  # Define a signal to send str
 
     def write(self, text):
         self.textWritten.emit(str(text))
+
+
+class MyFigure(FigureCanvas):
+    def __init__(self, width=10, height=4, dpi=100):
+        # Step 1: Create a Create Figure
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        # Step 2: Activate the Figure window in the parent class
+        super(MyFigure, self).__init__(self.fig)  # This sentence is essential, otherwise graphics cannot be displayed
+        self.axes = self.fig.add_subplot(111)
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -81,24 +97,24 @@ class Ui_MainWindow(object):
         self.tabWidget.setGeometry(QtCore.QRect(10, 30, 351, 321))
         self.tabWidget.setTabPosition(QtWidgets.QTabWidget.North)
         self.tabWidget.setObjectName("tabWidget")
-        self.tab_3 = QtWidgets.QWidget()
-        self.tab_3.setObjectName("tab_3")
-        self.consoleBrowser = QtWidgets.QTextBrowser(self.tab_3)
-        self.consoleBrowser.setGeometry(QtCore.QRect(10, 10, 311, 261))
-        self.consoleBrowser.setObjectName("consoleBrowser")
-        self.tabWidget.addTab(self.tab_3, "")
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
-        self.lossView = QtWidgets.QGraphicsView(self.tab)
-        self.lossView.setGeometry(QtCore.QRect(0, 10, 331, 251))
-        self.lossView.setObjectName("lossView")
+        self.consoleBrowser = QtWidgets.QTextBrowser(self.tab)
+        self.consoleBrowser.setGeometry(QtCore.QRect(10, 10, 321, 271))
+        self.consoleBrowser.setObjectName("consoleBrowser")
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
-        self.textBrowser = QtWidgets.QTextBrowser(self.tab_2)
-        self.textBrowser.setGeometry(QtCore.QRect(50, 50, 256, 192))
-        self.textBrowser.setObjectName("textBrowser")
+        self.lossView = QtWidgets.QGraphicsView(self.tab_2)
+        self.lossView.setGeometry(QtCore.QRect(10, 10, 321, 271))
+        self.lossView.setObjectName("lossView")
         self.tabWidget.addTab(self.tab_2, "")
+        self.tab_3 = QtWidgets.QWidget()
+        self.tab_3.setObjectName("tab_3")
+        self.performanceBrowser = QtWidgets.QTextBrowser(self.tab_3)
+        self.performanceBrowser.setGeometry(QtCore.QRect(10, 10, 321, 271))
+        self.performanceBrowser.setObjectName("performanceBrowser")
+        self.tabWidget.addTab(self.tab_3, "")
         self.trainResultLabel = QtWidgets.QLabel(self.frame_2)
         self.trainResultLabel.setGeometry(QtCore.QRect(20, 10, 101, 16))
         self.trainResultLabel.setObjectName("trainResultLabel")
@@ -150,8 +166,11 @@ class Ui_MainWindow(object):
         self.nbLayer2Text.setObjectName("nbLayer2Text")
         self.gridLayout.addWidget(self.nbLayer2Text, 1, 3, 1, 1)
         self.trainModelButton = QtWidgets.QPushButton(self.frame_3)
-        self.trainModelButton.setGeometry(QtCore.QRect(270, 130, 92, 23))
+        self.trainModelButton.setGeometry(QtCore.QRect(240, 130, 92, 23))
         self.trainModelButton.setObjectName("trainModelButton")
+        self.loadModelButton = QtWidgets.QPushButton(self.frame_3)
+        self.loadModelButton.setGeometry(QtCore.QRect(360, 130, 75, 23))
+        self.loadModelButton.setObjectName("loadModelButton")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 794, 23))
@@ -178,19 +197,19 @@ class Ui_MainWindow(object):
         self.actionUsing_help.setObjectName("actionUsing_help")
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Getting started with AI-Identifying squares and circles"))
         self.adjustLabel.setText(_translate("MainWindow", "Adjust "))
         self.selectImageButton.setText(_translate("MainWindow", "Select Image..."))
         self.recognizeButton.setText(_translate("MainWindow", "Recognize"))
         self.resultLabel.setText(_translate("MainWindow", "Recognition result"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Console"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Loss"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "performance"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Console"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Loss"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Performance"))
         self.trainResultLabel.setText(_translate("MainWindow", "Training results"))
         self.nbLayer3Label.setText(_translate("MainWindow", "Number of neurons in 3 layer"))
         self.nbLayer2Label.setText(_translate("MainWindow", "Number of neurons in 2 layer"))
@@ -199,6 +218,7 @@ class Ui_MainWindow(object):
         self.epochLabel.setText(_translate("MainWindow", "Number of iterations:"))
         self.dataDirLabel.setText(_translate("MainWindow", "Current dataset path:"))
         self.trainModelButton.setText(_translate("MainWindow", "Training model"))
+        self.loadModelButton.setText(_translate("MainWindow", "Load Model"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))
         self.actionQuit.setText(_translate("MainWindow", "Save As..."))
         self.actionQuit_2.setText(_translate("MainWindow", "Quit"))
@@ -207,23 +227,60 @@ class Ui_MainWindow(object):
         self.actionSave_As.setText(_translate("MainWindow", "Save As..."))
         self.actionQuit_3.setText(_translate("MainWindow", "Quit"))
         self.actionUsing_help.setText(_translate("MainWindow", "Using help"))
+
+
 # import img_rc
 
     def initialize(self):
+        self.filename = ""
+        self.dataDirText.setText("/Dataset/basicshapes")
+        self.dataDirText.setDisabled(True)
         self.selectImageButton.clicked.connect(self.selectImageClicked)
-        self.trainModelButton.clicked.connect(self.trainModel)
-        self.recognizeButton.clicked.connect(self.recognize)
+        self.trainModelButton.clicked.connect(self.trainModelClicked)
+        self.recognizeButton.clicked.connect(self.recognizeClicked)
+        self.loadModelButton.clicked.connect(self.loadModelClicked)
 
-        # self.nbLayer2Text.setFocusPolicy(QtCore.Qt.NoFocus)
         self.nbLayer2Text.setDisabled(True)
         self.nbLayer3Text.setDisabled(True)
-        # self.nbLayer3Text.setFocusPolicy(QtCore.Qt.NoFocus)
+
         self.nbLayerBox.addItem('1')
         self.nbLayerBox.addItem('2')
         self.nbLayerBox.addItem('3')
         self.nbLayerBox.currentIndexChanged.connect(self.nbLayerBoxIndexChanged)
         sys.stdout = EmittingStream(textWritten=self.outputWritten)
         sys.stderr = EmittingStream(textWritten=self.outputWritten)
+
+        dataframe = pd.read_csv('newtest.csv')
+        y = dataframe.iloc[0:200, 0].values
+        y = np.where(y == 0, 0, 1)
+        X = dataframe.iloc[0:200, 1:785].values
+        for i in range(200):
+            for j in range(784):
+                X[i][j] = float(X[i][j])
+        X_std = np.copy(X)
+        X_std[:, 0] = (X[:, 0] - X[:, 0].mean()) / X[:, 0].std()
+        X_std[:, 1] = (X[:, 1] - X[:, 1].mean()) / X[:, 1].std()
+        X_train = np.array(X_std)
+        self.data_train, self.data_test, self.target_train, self.target_test = train_test_split(X_train, y,
+                                                                                                test_size=0.2)
+    def plotLoss(self):
+        self.F = MyFigure(width=3, height=2, dpi=100)
+        x = range(0, self.nn.num_epoch)
+        self.F.axes.plot(x, self.nn.array_loss, label='loss')
+        self.F.axes.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=0, ncol=3, mode="expand", borderaxespad=0.)
+
+    def performance(self):
+        str_train_accuracy = 'Accuracy of the trainset: {}\n'.format(self.nn.train_accuracy)
+        str_train_precision = 'Precision of the trainset: {}\n'.format(self.nn.train_precision)
+        str_train = str_train_accuracy + str_train_precision
+
+        count_test_error = 0
+        for data, label in zip(self.data_test, self.target_test):
+            predict = self.nn.predict(data).tolist()
+            if not label == round(predict[1][0]):
+                count_test_error += 1
+        str_test_error = 'Number of prediction errors in the test set = {}/40\n'.format(count_test_error)
+        return str_train + str_test_error
 
     def nbLayerBoxIndexChanged(self):
         if self.nbLayerBox.currentText() == "1":
@@ -240,27 +297,31 @@ class Ui_MainWindow(object):
             self.nbLayer3Text.setDisabled(False)
 
     def selectImageClicked(self):
-        # dir_path = QFileDialog.getExistingDirectory(self, "请选择文件夹路径", "C:\\")
         filename, _ = QFileDialog.getOpenFileName(self, "Sélectionnez les images à reconnaître")
         self.filename = filename
-        print(self.filename)
-        # self.graphicsView.setStyleSheet("border-image: url(:/img/drawing(1).png);")
-        self.imageView.setStyleSheet("border-image: url("+ filename +");")
+        print("The path of the selected image:" + self.filename)
+
+        self.imageView.setStyleSheet("border-image: url(" + filename + ");")
+
+    def trainModelClicked(self):
+        button = QMessageBox.question(self, "Reminder",
+                                      self.tr(
+                                          "The training process may take a long time, please wait patiently if the program does not respond"),
+                                      QMessageBox.Ok | QMessageBox.Cancel,
+                                      QMessageBox.Ok)
+        if button == QMessageBox.Ok:
+            self.trainModel()
+        elif button == QMessageBox.Cancel:
+            pass
+        else:
+            return
+
+    def loadModelClicked(self):
+        self.loadModel()
 
     def trainModel(self):
         # self.textEdit.setText("Training, please wait.")
-        dataframe = pd.read_csv('newtest.csv')
-        y = dataframe.iloc[0:200, 0].values
-        y = np.where(y == 0, 0, 1)
-        X = dataframe.iloc[0:200, 1:785].values
-        for i in range(200):
-            for j in range(784):
-                X[i][j] = float(X[i][j])
-        X_std = np.copy(X)
-        X_std[:, 0] = (X[:, 0] - X[:, 0].mean()) / X[:, 0].std()
-        X_std[:, 1] = (X[:, 1] - X[:, 1].mean()) / X[:, 1].std()
-        X_train = np.array(X_std)
-        data_train, data_test, target_train, target_test = train_test_split(X_train, y, test_size=0.2)
+
         # self.textEdit.setText("Training, please wait.")
 
         nbLayer1 = int(self.nbLayer1Text.text())
@@ -271,35 +332,41 @@ class Ui_MainWindow(object):
         if self.nbLayer3Text.text() != "":
             nbLayer3 = int(self.nbLayer3Text.text())
 
-        self.nn = MLP_class.neural_network(data_train, target_train, self.nbLayerBox.currentIndex()+2, 784, 2, int(self.epochText.text()), nbLayer1, nbLayer2, nbLayer3, is_bias=True)
+        self.nn = MLP_class.neural_network(self.data_train, self.target_train, self.nbLayerBox.currentIndex() + 2, 784,
+                                           2, int(self.epochText.text()), nbLayer1, nbLayer2, nbLayer3, is_bias=True)
         self.nn.learning()
+
         np.set_printoptions(suppress=True, precision=2)
 
-        # count_train_error = 0
-        # for data, label in zip(data_train, target_train):
-        #     print("trainset")
-        #     predict = self.nn.predict(data).tolist()
-        #     if not label == round(predict[1][0]):
-        #         count_train_error += 1
-        #     if (label == 0):
-        #         label = "circle"
-        #     elif (label == 1):
-        #         label == "square"
-        #     print("label: ", label, "predict", round(predict[1][0]))
+        self.plotLoss()
+        self.scene = QGraphicsScene()  # 创建一个场景
+        self.scene.addWidget(self.F)  # 将图形元素添加到场景中
+        self.lossView.setScene(self.scene)  # 将创建添加到图形视图显示窗口
+        self.performanceBrowser.setText(self.performance())
+        self.saveModel()
+
+    def recognizeClicked(self):
+        if self.filename == "":
+            QMessageBox.warning(self, "Warning", self.tr("You have to choose an image file"))
+        elif self.filename[-3:] != 'png':
+            QMessageBox.warning(self, "Warning", self.tr("The selected file must be an PNG type"))
+        else:
+            self.recognize()
 
     def recognize(self):
         if self.filename != "":
             img = cv2.imread(self.filename, cv2.IMREAD_GRAYSCALE)
-            # 图片标签
+            # Picture tags
             row_data = []
-            # 获取图片的像素
+            # Get picture pixels
             row_data.extend(img.flatten())
-            # 将图片数据写入到csv文件中
+            # Write picture data to csv file
             predict = self.nn.predict(np.array(row_data)).tolist()
             if round(predict[1][0]) == 0:
                 result = "circle"
             elif (round(predict[1][0]) == 1):
                 result = "square"
+            print("Prediction Result:" + result)
             self.resultText.setText(result)
 
     def outputWritten(self, text):
@@ -308,3 +375,61 @@ class Ui_MainWindow(object):
         cursor.insertText(text)
         self.consoleBrowser.setTextCursor(cursor)
         self.consoleBrowser.ensureCursorVisible()
+
+    def saveModel(self):
+        with open("model.txt", "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(str(self.nn.num_layer))
+
+            writer.writerow([str(self.nn.nbneuron1)])
+            writer.writerow([str(self.nn.nbneuron2)])
+            writer.writerow([str(self.nn.nbneuron3)])
+            writer.writerow([str(self.nn.array_loss[-1])])
+            writer.writerow([str(self.nn.train_accuracy)])
+            writer.writerow([str(self.nn.train_precision)])
+
+            for i in range(self.nn.num_layer):
+                if i == 0:
+                    weight_size = self.nn.input_size
+                elif i == 1:
+                    weight_size = self.nn.nbneuron1
+                elif i == 2:
+                    weight_size = self.nn.nbneuron2
+                for j in range(weight_size):
+                    writer.writerow(self.nn.weights[i][j].tolist())
+
+        print(self.nn.weights)
+        print(self.nn.train_accuracy)
+        print(self.nn.train_precision)
+        print(self.nn.is_bias)
+
+    def loadModel(self):
+        modelPath, _ = QFileDialog.getOpenFileName(self, "Choose a trained model")
+        self.modelPath = modelPath
+        print("The path of the selected model:" + self.modelPath)
+        f = open(self.modelPath,'r')
+        lines=[]
+        for line in f.readlines():
+            line = line.strip()
+            lines.append(line)
+
+        num_layer = int(lines[0])
+        nbLayer1 = int(lines[1])
+        nbLayer2 = int(lines[2])
+        nbLayer3 = int(lines[3])
+        self.nn = MLP_class.neural_network(self.data_train, self.target_train, num_layer, 784, 2, 1000, nbLayer1, nbLayer2, nbLayer3, is_bias=True)
+
+        self.nn.weight = []
+        self.biases = []
+        for i in range(lines[6:784]):
+            poid = lines[i].split(',')
+            for j in range(nbLayer1):
+                weight_0 = poid[i]
+        # self.nn.num_layer = dataframe.iloc[0,0].values
+        # self.nn.nbneuron1 = dataframe.iloc[1,0].values
+        # y = dataframe.iloc[0:200, 0].values
+        # y = np.where(y == 0, 0, 1)
+        # X = dataframe.iloc[0:200, 1:785].values
+        # for i in range(200):
+        #     for j in range(784):
+        #         X[i][j] = float(X[i][j])

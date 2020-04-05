@@ -19,7 +19,7 @@ X_std[:,1]=(X[:,1]-X[:,1].mean()) / X[:,1].std()
 X_train = np.array(X_std)
 data_train, data_test, target_train, target_test = train_test_split(X_train,y,test_size=0.2)
 
-nn = MLP_class.neural_network(data_train, target_train, 2, 784, 2,5000, 784, 0, 0, is_bias=True)
+nn = MLP_class.neural_network(data_train, target_train, 2, 784, 2,100, 784, 0, 0, is_bias=True)
 # nn = MLP_class.neural_network(X_train, y, 2, 784, 2, is_bias=True)
 nn.learning()
 np.set_printoptions(suppress=True, precision=2)

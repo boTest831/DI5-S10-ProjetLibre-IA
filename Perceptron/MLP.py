@@ -15,6 +15,11 @@ class neural_network(object):
         self.labels = target
         self.is_bias = is_bias
         self.num_epoch = num_epoch  # Nombre d'itérations
+        self.input_size = input_size
+        self.output_size = output_size
+        self.nbneuron1 = nbneuron1
+        self.nbneuron2 = nbneuron2
+        self.nbneuron3 = nbneuron3
 
         # Pour dessiner la figure
         self.array_loss = []
