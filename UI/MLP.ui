@@ -147,7 +147,7 @@
      <property name="currentIndex">
       <number>2</number>
      </property>
-     <widget class="QWidget" name="tab_3">
+     <widget class="QWidget" name="tab">
       <attribute name="title">
        <string>Console</string>
       </attribute>
@@ -156,38 +156,38 @@
         <rect>
          <x>10</x>
          <y>10</y>
-         <width>311</width>
-         <height>261</height>
-        </rect>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QWidget" name="tab">
-      <attribute name="title">
-       <string>Loss</string>
-      </attribute>
-      <widget class="QGraphicsView" name="lossView">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>10</y>
-         <width>331</width>
-         <height>251</height>
+         <width>321</width>
+         <height>271</height>
         </rect>
        </property>
       </widget>
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>performance</string>
+       <string>Loss</string>
       </attribute>
-      <widget class="QTextBrowser" name="textBrowser">
+      <widget class="QGraphicsView" name="lossView">
        <property name="geometry">
         <rect>
-         <x>50</x>
-         <y>50</y>
-         <width>256</width>
-         <height>192</height>
+         <x>10</x>
+         <y>10</y>
+         <width>321</width>
+         <height>271</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>Performance</string>
+      </attribute>
+      <widget class="QTextBrowser" name="performanceBrowser">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>321</width>
+         <height>271</height>
         </rect>
        </property>
       </widget>

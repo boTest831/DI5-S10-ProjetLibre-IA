@@ -2,8 +2,8 @@ import numpy as np
 from scipy import sparse
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
-
-
+from sklearn.metrics import accuracy_score, precision_score
+import torch
 class neural_network(object):
     # Initialisation du perceptron
     def __init__(self, data, target, num_layer, input_size, output_size, num_epoch, nbneuron1, nbneuron2, nbneuron3, lr=0.001, is_bias=False):
@@ -101,6 +101,11 @@ class neural_network(object):
             self.array_loss.append(self.loss)
             print(epoch, self.loss)
             self.backward()
+        a1 = torch.from_numpy(self.out_softmax[0]).int()
+        self.train_accuracy = accuracy_score(a1, self.labels[0])
+        self.train_precision = precision_score(a1, self.labels[0])
+        # print('Accuracy score: ', accuracy_score(a1, self.labels[0]))
+        # print('Precision score: ', precision_score(a1, self.labels[0]))
 
     # Softmax score
     def softmax(self, V):

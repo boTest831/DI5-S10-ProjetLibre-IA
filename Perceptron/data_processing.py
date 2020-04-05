@@ -1,7 +1,7 @@
 import csv,os,cv2
 def convert_img_to_csv(img_dir):
     #设置需要保存的csv路径
-    with open("newtest.csv","w",newline="") as f:
+    with open("imagePixel.csv","w",newline="") as f:
         #设置csv文件的列名
         column_name = ["label"]
         column_name.extend(["pixel%d"%i for i in range(28*28)])
@@ -79,4 +79,4 @@ def convert_img_to_csv(img_dir):
 if __name__ == "__main__":
     #将该目录下的图片保存为csv文件
     #convert_img_to_csv(r"F:/DockerProjet/DI5-S10-ProjetLibre-IA/AI_Test/Perceptron/circles")
-    convert_img_to_csv("../kaggleData/basicshapes/")
+    convert_img_to_csv("../Dataset/basicshapes/")
