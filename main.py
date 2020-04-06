@@ -1,10 +1,156 @@
-# -*- coding: utf-8 -*-
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow
 
-# Form implementation generated from reading ui file 'MLP.ui'
-#
-# Created by: PyQt5 UI code generator 5.14.1
-#
-# WARNING! All changes made in this file will be lost!
+import numpy as np
+from scipy import sparse
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_score
+import torch
+class neural_network(object):
+    # Initialisation du perceptron
+    def __init__(self, data, target, num_layer, input_size, output_size, num_epoch, nbneuron1, nbneuron2, nbneuron3, lr=0.001, is_bias=False):
+        self.num_layer = num_layer  # nombre de couches de réseau (couches cachées + couche sortie)
+        self.data = data.T
+        self.data = (self.data - self.data.min()) / (self.data.max() - self.data.min())  # Données normalisées
+        self.lr = lr
+        target = self.convert_labels(target, output_size)  # Résultat idéal
+        self.labels = target
+        self.is_bias = is_bias
+        self.num_epoch = num_epoch  # Nombre d'itérations
+        self.input_size = input_size
+        self.output_size = output_size
+        self.nbneuron1 = nbneuron1
+        self.nbneuron2 = nbneuron2
+        self.nbneuron3 = nbneuron3
+        self.Z = []  # Sortie de nœuds neuronaux
+        self.A = []  # Valeur d'entrée
+        # Pour dessiner la figure
+        self.array_loss = []
+        weight = []
+        nb_neurons_prec = input_size  # Nombre d'entrées = 4
+        biases = []
+
+        for i in range(num_layer - 1):
+            # Entrez le nombre de neurones dans chaque couche cachée
+            # nb_neurons = int(input('Number of neurones in layer' + str(i + 1) + '?'))
+            if i == 0:
+                nb_neurons = nbneuron1
+            elif i == 1:
+                nb_neurons = nbneuron2
+            elif i == 2:
+                nb_neurons = nbneuron3
+            # nb_neurons = 784
+            # Initialiser les poids et les biais pour chaque couche avec des nombres aléatoires
+            weight_i = np.random.randn(nb_neurons_prec,
+                                       nb_neurons)  # Nb poids =  nb données d'entrée dans la couche précédente * Nb neurones dans cette couche
+            if is_bias:
+                bias = np.random.randn(nb_neurons, 1)  # Nb biases =  Nb neurones
+                biases.append(bias)
+            weight.append(weight_i)
+            nb_neurons_prec = nb_neurons
+        weight_last = np.random.randn(nb_neurons_prec, output_size)
+        weight.append(weight_last)
+        self.weights = weight  # Matrice de poids
+        self.biases = biases  # Vecteur de biais
+
+    # propager l'entrée à la dernière couche
+    def forward(self):
+        self.Z = []  # Sortie de nœuds neuronaux
+        self.A = []  # Valeur d'entrée
+        a = self.data
+        self.A.append(a)
+        # Calculez la valeur de sortie de chaque nœud
+        for i in range(self.num_layer - 1):
+            # zl = self.weights[l] * self.data[l-1] + self.biases[l]
+            #
+            if self.is_bias:
+                z = np.dot(self.weights[i].T, a) + self.biases[i]
+            else:
+                z = np.dot(self.weights[i].T, a)
+            a = np.maximum(z, 0)  # relu Fonction d'activation
+            self.Z.append(z)
+            self.A.append(a)
+        out = np.dot(self.weights[self.num_layer - 1].T, a)  # Résultats de la couche de sortie
+        self.out_softmax = self.softmax(out)
+
+    # calcul erreur , rétropropagation via le réseau
+    def backward(self):
+        self.E = []
+        self.dW = []
+        self.db = []
+        # eL =∂J / ∂zL  le gradient de l’erreur selon bL = eL
+        e = (self.out_softmax - self.labels) / (self.labels.shape[1])
+        dw = np.dot(self.A[-1], e.T)  # Calcul le gradient de l’erreur selon WL
+        self.dW.append(dw)
+
+        # calcul d’erreur de sortie de la couche l
+        for i in range(self.num_layer - 1):
+            a = self.A[-i - 2]
+            z = self.Z[-i - 1]
+            e = np.dot(self.weights[-i - 1], e)
+            e[z <= 0] = 0
+            dw = np.dot(a, e.T)
+            if self.is_bias:
+                db = np.sum(e, axis=1, keepdims=True)
+                self.db.append(db)
+            self.dW.append(dw)
+
+        # Ajuster les poids et les biais
+        for i in range(self.num_layer):
+            self.weights[i] += -self.lr * self.dW[-i - 1]
+        if self.is_bias:
+            for i in range(self.num_layer - 1):
+                self.biases[i] += -self.lr * self.db[-i - 1]
+
+    def learning(self):
+        for epoch in range(self.num_epoch):
+            self.forward()
+            self.loss = self.cost(self.labels, self.out_softmax)  # Calculez l'écart
+            self.array_loss.append(self.loss)
+            print(epoch, self.loss)
+            self.backward()
+        a1 = torch.from_numpy(self.out_softmax[0]).int()
+        self.train_accuracy = accuracy_score(a1, self.labels[0])
+        self.train_precision = precision_score(a1, self.labels[0])
+        # print('Accuracy score: ', accuracy_score(a1, self.labels[0]))
+        # print('Precision score: ', precision_score(a1, self.labels[0]))
+
+    # Softmax score
+    def softmax(self, V):
+        e_V = np.exp(V - np.max(V, axis=0, keepdims=True))
+        Z = e_V / e_V.sum(axis=0)
+        return Z
+
+    def predict(self, data):
+        self.A = []  # Valeur d'entrée
+        a = data.reshape(data.shape[0],1)
+        self.A.append(a)
+        # Calculez la valeur de sortie de chaque nœud
+        for i in range(self.num_layer - 1):
+            # zl = self.weights[l] * self.data[l-1] + self.biases[l]
+            if self.is_bias:
+                z = np.dot(self.weights[i].T, a) + self.biases[i]
+            else:
+                z = np.dot(self.weights[i].T, a)
+            a = np.maximum(z, 0)  # relu Fonction d'activation
+            self.Z.append(z)
+            self.A.append(a)
+        out = np.dot(self.weights[self.num_layer - 1].T, a)  # Résultats de la couche de sortie
+        return self.softmax(out)
+
+    # One-hot coding
+    def convert_labels(self, y, C=2):
+        Y = sparse.coo_matrix((np.ones_like(y),
+                               (y, np.arange(len(y)))), shape=(C, len(y))).toarray()
+        return Y
+
+    # cost or loss function
+    def cost(self, Y, Yhat):
+        return -np.sum(Y * np.log(Yhat)) / Y.shape[1]
+
+
+
 import csv
 
 import cv2
@@ -18,7 +164,7 @@ import matplotlib
 matplotlib.use("Qt5Agg")  # Declare to use QT5
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import Perceptron.MLP as MLP_class
+# import MLP as MLP_class
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
@@ -166,8 +312,11 @@ class Ui_MainWindow(object):
         self.nbLayer2Text.setObjectName("nbLayer2Text")
         self.gridLayout.addWidget(self.nbLayer2Text, 1, 3, 1, 1)
         self.trainModelButton = QtWidgets.QPushButton(self.frame_3)
-        self.trainModelButton.setGeometry(QtCore.QRect(270, 130, 92, 23))
+        self.trainModelButton.setGeometry(QtCore.QRect(240, 130, 92, 23))
         self.trainModelButton.setObjectName("trainModelButton")
+        self.loadModelButton = QtWidgets.QPushButton(self.frame_3)
+        self.loadModelButton.setGeometry(QtCore.QRect(360, 130, 75, 23))
+        self.loadModelButton.setObjectName("loadModelButton")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 794, 23))
@@ -215,6 +364,7 @@ class Ui_MainWindow(object):
         self.epochLabel.setText(_translate("MainWindow", "Number of iterations:"))
         self.dataDirLabel.setText(_translate("MainWindow", "Current dataset path:"))
         self.trainModelButton.setText(_translate("MainWindow", "Training model"))
+        self.loadModelButton.setText(_translate("MainWindow", "Load Model"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))
         self.actionQuit.setText(_translate("MainWindow", "Save As..."))
         self.actionQuit_2.setText(_translate("MainWindow", "Quit"))
@@ -223,6 +373,7 @@ class Ui_MainWindow(object):
         self.actionSave_As.setText(_translate("MainWindow", "Save As..."))
         self.actionQuit_3.setText(_translate("MainWindow", "Quit"))
         self.actionUsing_help.setText(_translate("MainWindow", "Using help"))
+
 
 # import img_rc
 
@@ -233,6 +384,7 @@ class Ui_MainWindow(object):
         self.selectImageButton.clicked.connect(self.selectImageClicked)
         self.trainModelButton.clicked.connect(self.trainModelClicked)
         self.recognizeButton.clicked.connect(self.recognizeClicked)
+        self.loadModelButton.clicked.connect(self.loadModelClicked)
 
         self.nbLayer2Text.setDisabled(True)
         self.nbLayer3Text.setDisabled(True)
@@ -244,6 +396,19 @@ class Ui_MainWindow(object):
         sys.stdout = EmittingStream(textWritten=self.outputWritten)
         sys.stderr = EmittingStream(textWritten=self.outputWritten)
 
+        dataframe = pd.read_csv('imagePixel.csv')
+        y = dataframe.iloc[0:200, 0].values
+        y = np.where(y == 0, 0, 1)
+        X = dataframe.iloc[0:200, 1:785].values
+        for i in range(200):
+            for j in range(784):
+                X[i][j] = float(X[i][j])
+        X_std = np.copy(X)
+        X_std[:, 0] = (X[:, 0] - X[:, 0].mean()) / X[:, 0].std()
+        X_std[:, 1] = (X[:, 1] - X[:, 1].mean()) / X[:, 1].std()
+        X_train = np.array(X_std)
+        self.data_train, self.data_test, self.target_train, self.target_test = train_test_split(X_train, y,
+                                                                                                test_size=0.2)
     def plotLoss(self):
         self.F = MyFigure(width=3, height=2, dpi=100)
         x = range(0, self.nn.num_epoch)
@@ -278,7 +443,6 @@ class Ui_MainWindow(object):
             self.nbLayer3Text.setDisabled(False)
 
     def selectImageClicked(self):
-
         filename, _ = QFileDialog.getOpenFileName(self, "Sélectionnez les images à reconnaître")
         self.filename = filename
         print("The path of the selected image:" + self.filename)
@@ -298,21 +462,12 @@ class Ui_MainWindow(object):
         else:
             return
 
+    def loadModelClicked(self):
+        self.loadModel()
+
     def trainModel(self):
         # self.textEdit.setText("Training, please wait.")
-        dataframe = pd.read_csv('newtest.csv')
-        y = dataframe.iloc[0:200, 0].values
-        y = np.where(y == 0, 0, 1)
-        X = dataframe.iloc[0:200, 1:785].values
-        for i in range(200):
-            for j in range(784):
-                X[i][j] = float(X[i][j])
-        X_std = np.copy(X)
-        X_std[:, 0] = (X[:, 0] - X[:, 0].mean()) / X[:, 0].std()
-        X_std[:, 1] = (X[:, 1] - X[:, 1].mean()) / X[:, 1].std()
-        X_train = np.array(X_std)
-        self.data_train, self.data_test, self.target_train, self.target_test = train_test_split(X_train, y,
-                                                                                                test_size=0.2)
+
         # self.textEdit.setText("Training, please wait.")
 
         nbLayer1 = int(self.nbLayer1Text.text())
@@ -323,8 +478,8 @@ class Ui_MainWindow(object):
         if self.nbLayer3Text.text() != "":
             nbLayer3 = int(self.nbLayer3Text.text())
 
-        self.nn = MLP_class.neural_network(self.data_train, self.target_train, self.nbLayerBox.currentIndex() + 2, 784,
-                                           2, int(self.epochText.text()), nbLayer1, nbLayer2, nbLayer3, is_bias=True)
+        self.nn = neural_network(self.data_train, self.target_train, self.nbLayerBox.currentIndex() + 2, 784,
+                                           2, int(self.epochText.text()), nbLayer1, nbLayer2, nbLayer3, is_bias=False)
         self.nn.learning()
 
         np.set_printoptions(suppress=True, precision=2)
@@ -335,6 +490,7 @@ class Ui_MainWindow(object):
         self.lossView.setScene(self.scene)  # 将创建添加到图形视图显示窗口
         self.performanceBrowser.setText(self.performance())
         self.saveModel()
+
 
     def recognizeClicked(self):
         if self.filename == "":
@@ -368,8 +524,18 @@ class Ui_MainWindow(object):
         self.consoleBrowser.ensureCursorVisible()
 
     def saveModel(self):
-        with open("model.csv", "w", newline="") as f:
+        modelName= "model-" +str(self.nn.array_loss[-1])
+        with open(modelName, "w", newline="") as f:
             writer = csv.writer(f)
+            writer.writerow(str(self.nn.num_layer))
+
+            writer.writerow([str(self.nn.nbneuron1)])
+            writer.writerow([str(self.nn.nbneuron2)])
+            writer.writerow([str(self.nn.nbneuron3)])
+            writer.writerow([str(self.nn.array_loss[-1])])
+            writer.writerow([str(self.nn.train_accuracy)])
+            writer.writerow([str(self.nn.train_precision)])
+
             for i in range(self.nn.num_layer):
                 if i == 0:
                     weight_size = self.nn.input_size
@@ -377,10 +543,101 @@ class Ui_MainWindow(object):
                     weight_size = self.nn.nbneuron1
                 elif i == 2:
                     weight_size = self.nn.nbneuron2
+                elif i == 3:
+                    weight_size = self.nn.nbneuron3
                 for j in range(weight_size):
                     writer.writerow(self.nn.weights[i][j].tolist())
+        print("The stored model file name is "+ modelName)
+    def loadModel(self):
+        modelPath, _ = QFileDialog.getOpenFileName(self, "Choose a trained model")
+        self.modelPath = modelPath
+        if modelPath != "":
+            print("The path of the selected model:" + self.modelPath)
+            f = open(self.modelPath, 'r')
+            lines = []
+            for line in f.readlines():
+                line = line.strip()
+                lines.append(line)
 
-        print(self.nn.weights)
-        print(self.nn.train_accuracy)
-        print(self.nn.train_precision)
-        print(self.nn.is_bias)
+            num_layer = int(lines[0])
+            nbLayer1 = int(lines[1])
+            nbLayer2 = int(lines[2])
+            nbLayer3 = int(lines[3])
+            self.nbLayerBox.setCurrentIndex(num_layer-2)
+            self.nbLayer1Text.setText(lines[1])
+            if nbLayer2 != 0:
+                self.nbLayer2Text.setText(lines[2])
+                self.nbLayer2Text.setDisabled(False)
+            if nbLayer3 != 0:
+                self.nbLayer3Text.setText(lines[3])
+                self.nbLayer3Text.setDisabled(False)
+            self.nn = neural_network(self.data_train, self.target_train, num_layer, 784, 2, 1000, nbLayer1,
+                                               nbLayer2, nbLayer3, is_bias=False)
+            self.nn.array_loss.append(float(lines[4]))
+            self.nn.train_accuracy = float(lines[5])
+            self.nn.train_precision = float(lines[6])
+            self.nn.weights = []
+            weignts = []
+            for i in range(7, 791):
+                poids = []
+                for j in range(nbLayer1):
+                    poid = float(lines[i].split(',')[j])
+                    poids.append(poid)
+                weignts.append(poids)
+            weight_0 = np.array(weignts)
+            self.nn.weights.append(weight_0)
+            linestart = 791
+            lineend = 791 + nbLayer1
+            if num_layer >= 3:
+                weignts = []
+                for i in range(791, 791 + nbLayer1):
+                    poids = []
+                    for j in range(nbLayer2):
+                        poid = float(lines[i].split(',')[j])
+                        poids.append(poid)
+                    weignts.append(poids)
+                weight_1 = np.array(weignts)
+                self.nn.weights.append(weight_1)
+                linestart = 791 + nbLayer1
+                lineend = linestart + nbLayer2
+
+            if num_layer >= 4:
+                weignts = []
+                for i in range(791 + nbLayer1, 791 + nbLayer1 + nbLayer2):
+                    poids = []
+                    for j in range(nbLayer3):
+                        poid = float(lines[i].split(',')[j])
+                        poids.append(poid)
+                    weignts.append(poids)
+                weight_2 = np.array(weignts)
+                self.nn.weights.append(weight_2)
+                linestart = 791 + nbLayer1 + nbLayer2
+                lineend = linestart + nbLayer3
+
+            weignts = []
+            for i in range(linestart, lineend):
+                poids = []
+                for j in range(2):
+                    poid = float(lines[i].split(',')[j])
+                    poids.append(poid)
+                weignts.append(poids)
+            weight_3 = np.array(weignts)
+            self.nn.weights.append(weight_3)
+            print("Loss of this model: {}".format( self.nn.array_loss[-1]))
+            print(self.performance())
+            self.performanceBrowser.setText(self.performance())
+
+class mainWin(QMainWindow, Ui_MainWindow):
+    def __init__(self, parent=None):
+        super(mainWin, self).__init__(parent)
+        self.setupUi(self)
+        self.initialize()
+
+if __name__ == '__main__':
+    # try:
+        app = QApplication(sys.argv)
+        main_win = mainWin()
+        main_win.show()
+        sys.exit(app.exec_())
+    # except Exception as e:
+    #     print('Error:',e)
